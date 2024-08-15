@@ -2,32 +2,29 @@ import java.awt.*;
 
 public class Bullet {
     private int x, y;
-    private int speed;
-    private int width, height;
+    private int width = 5, height = 10; // Define the size of the bullet
+    private Color color;
 
     public Bullet(int x, int y) {
         this.x = x;
         this.y = y;
-        this.speed = 10; // Speed at which the bullet moves
-        this.width = 5;
-        this.height = 10;
+        this.color = Color.RED; // Color for the bullet
     }
 
     public void update() {
-        y -= speed; // Move the bullet upwards
+        y -= 5; // Move the bullet upwards
     }
 
     public void draw(Graphics g) {
-        g.setColor(Color.RED);
+        g.setColor(color);
         g.fillRect(x, y, width, height);
     }
 
-    public boolean isOffScreen() {
-        return y < 0;
-    }
-
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(x, y, width, height); // Return the bounds for collision detection
     }
 
+    public boolean isOffScreen() {
+        return y < 0; // Bullet is offscreen if it moves above the window
+    }
 }

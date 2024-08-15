@@ -15,6 +15,9 @@ public class Game extends JPanel implements Runnable {
     private Random random;
     // Movement flags
     private boolean up, down, left, right, shooting;
+    private List<PowerUp> powerUps;
+    private boolean powerUpCollected;
+    private int score;
 
 
 
@@ -30,6 +33,9 @@ public class Game extends JPanel implements Runnable {
         bullets = new ArrayList<>();
         enemies = new ArrayList<>();
         random = new Random();
+        powerUps = new ArrayList<>();
+        powerUpCollected = false;
+        score = 0;
 
 
 
@@ -82,8 +88,7 @@ public class Game extends JPanel implements Runnable {
 
     }
 
-
-    // Update game state
+    // Update the game
     private void update() {
         player.update(up, down, left, right);
 
@@ -97,40 +102,25 @@ public class Game extends JPanel implements Runnable {
                 i--;
             }
         }
+
+        // Check collision with enemies
         for (int i = 0; i < bullets.size(); i++) {
             Bullet bullet = bullets.get(i);
-
-            // Check collision with enemies
             for (int j = 0; j < enemies.size(); j++) {
                 Enemy enemy = enemies.get(j);
                 if (bullet.getBounds().intersects(enemy.getBounds())) {
-                    System.out.println("Collision detected"); //Debugging output
+                    System.out.println("Bullet hit enemy!"); // Debugging output
                     bullets.remove(i);
                     enemies.remove(j);
-                    score++; //Increment the score when a bullet hits enemy
+                    score += 10; // Increment the score by 10 when a bullet hits an enemy
                     System.out.println("Score: " + score); // Debugging output to confirm score increment
-                    i--;
-                    break; //Break the loop to avoid IndexOutOfBounceException
-                }
-
-                if (bullet.getBounds().intersects(enemy.getBounds())) {
-                    bullets.remove(i);
-                    enemies.remove(j);
-                    score++; // Increment the score when a bullet hits an enemy
-                    i--;
-                    break; // Break the loop to avoid IndexOutOfBoundsException
+                    i--; // Decrement i to account for the removed bullet
+                    break; // Break the inner loop to avoid IndexOutOfBoundsException
                 }
             }
-
-            // Remove bullets that are off-screen
-            if (bullet.isOffScreen()) {
-                bullets.remove(i);
-                i--;
-            }
-
         }
 
-
+        // Update enemies and spawn logic
         for (int i = 0; i < enemies.size(); i++) {
             Enemy enemy = enemies.get(i);
             enemy.update();
@@ -140,9 +130,45 @@ public class Game extends JPanel implements Runnable {
             }
         }
 
-            if (random.nextInt(100) < 2) { // 2% chance to spawn an enemy each frame
-             enemies.add(new Enemy(random.nextInt(750), 0));
+        // Spawn enemies
+        if (random.nextInt(100) < 10) { // 10% chance to spawn an enemy each frame
+            enemies.add(new Enemy(random.nextInt(750), 0));
+        }
 
+        if (random.nextInt(100) < 2) { // 2% chance to spawn a power-up
+            powerUps.add(new PowerUp(random.nextInt(750), 0));
+        }
+
+
+        for (int i = 0; i < powerUps.size(); i++) {
+            PowerUp powerUp = powerUps.get(i);
+            powerUp.update();
+
+            // Check collision with player
+            if (powerUp.getBounds().intersects(player.getBounds())) {
+                powerUpCollected = true; // Mark power-up as collected
+                powerUps.remove(i);
+                i--;
+                System.out.println("Power-up collected!"); // Debugging output
+            }
+
+            if (powerUp.isOffScreen()) {
+                powerUps.remove(i);
+                i--;
+            }
+        }
+
+        player.update(up, down, left, right);
+
+        //Update bullets
+        for (int i = 0; i < bullets.size(); i++) {
+            Bullet bullet = bullets.get(i);
+            bullet.update();
+
+            if (bullet.isOffScreen()) {
+                bullets.remove(i);
+                i--;
+            }
         }
 
 
@@ -153,7 +179,6 @@ public class Game extends JPanel implements Runnable {
         repaint();
     }
 
-    private int score;
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -178,6 +203,11 @@ public class Game extends JPanel implements Runnable {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 18));
         g.drawString("Score: " + score, 10, 20);
+
+        // Draw power-ups
+        for (PowerUp powerUp : powerUps) {
+            powerUp.draw(g);
+        }
     }
 
     // Start the game
@@ -191,7 +221,6 @@ public class Game extends JPanel implements Runnable {
 
         new Thread(game).start();
     }
-
 
 }
 

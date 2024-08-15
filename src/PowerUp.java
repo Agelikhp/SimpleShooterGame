@@ -1,14 +1,14 @@
 import java.awt.*;
 
-public class Enemy {
+public class PowerUp {
     private int x, y;
-    private int width = 40, height = 40; // Define the size of the enemy
+    private int width =  20, height = 20;
     private Color color;
 
-    public Enemy(int x, int y) {
+    public PowerUp(int x, int y) {
         this.x = x;
         this.y = y;
-        this.color = Color.RED; // Color for the enemy
+        this.color = Color.GREEN; //Color for the power-up
     }
 
     public void update() {
@@ -21,10 +21,10 @@ public class Enemy {
     }
 
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height); // Return the bounds for collision detection
+        return new Rectangle(x, y, width, height);
     }
 
     public boolean isOffScreen() {
-        return y > 600; // Assuming 600 is the height of the game window
+        return y > 600; // 600 is the height of the window
     }
 }
